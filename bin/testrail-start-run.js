@@ -34,7 +34,7 @@ const args = arg(
   { permissive: true },
 )
 // optional arguments
-const name = args['--name'] || args._[0]
+const name = process.env.TESTRAIL_RUN_NAME || args['--name'] || args._[0]
 const description = args['--description'] || args._[1]
 debug('args: %o', args)
 debug('run name: %s', name)
