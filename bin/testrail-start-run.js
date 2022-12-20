@@ -18,6 +18,7 @@ const args = arg(
     '--name': String,
     '--description': String,
     '--suite': String,
+    '--configFile': String,
     // find the specs automatically using
     // https://github.com/bahmutov/find-cypress-specs
     '--find-specs': Boolean,
@@ -136,7 +137,7 @@ if (args['--find-specs']) {
   if (args['--dry']) {
     console.log('Dry run, not starting a new run')
   } else {
-    const testRailInfo = getTestRailConfig()
+    const testRailInfo = getTestRailConfig(process.env, args['--configFile'])
     startRun({ testRailInfo, name, description, caseIds })
   }
 } else if (args['--spec']) {
@@ -146,11 +147,11 @@ if (args['--find-specs']) {
     const caseIds = findCases(specs)
     debug('found %d TestRail case ids: %o', caseIds.length, caseIds)
 
-    const testRailInfo = getTestRailConfig()
+    const testRailInfo = getTestRailConfig(process.env, args['--configFile'])
     startRun({ testRailInfo, name, description, caseIds })
   })
 } else {
-  const testRailInfo = getTestRailConfig()
+  const testRailInfo = getTestRailConfig(process.env, args['--configFile'])
   // start a new test run for all test cases
   // @ts-ignore
   startRun({ testRailInfo, name, description })
