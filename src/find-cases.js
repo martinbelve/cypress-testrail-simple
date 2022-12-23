@@ -1,5 +1,5 @@
 const fs = require('fs')
-const { getTestNames, filterByEffectiveTags } = require('find-test-names')
+const { getTestNames, filterByEffectiveTags } = require('find-test-names-tags')
 
 /**
  * Returns the TestRail case id number (if any) from the given full test title
@@ -23,16 +23,26 @@ function uniqueSorted(list) {
  * Finds the test case IDs in the test titles.
  * @example "C101: Test case title" => "101"
  */
-function findCasesInSpec(spec, readSpec = fs.readFileSync, tagged) {
+function findCasesInSpec(
+  spec,
+  readSpec = fs.readFileSync,
+  tagged,
+  negativeTagged,
+) {
   const source = readSpec(spec, 'utf8')
 
   let testNames
   if (Array.isArray(tagged) && tagged.length > 0) {
-    const filteredTests = filterByEffectiveTags(source, tagged)
+    const filteredTests = filterByEffectiveTags(source, tagged, negativeTagged)
     testNames = filteredTests.map((t) => t.name)
   } else {
-    const found = getTestNames(source)
-    testNames = found.testNames
+    if (Array.isArray(negativeTagged) && negativeTagged.length > 0) {
+      const filteredTests = filterByEffectiveTags(source, [], negativeTagged)
+      testNames = filteredTests.map((t) => t.name)
+    } else {
+      const found = getTestNames(source)
+      testNames = found.testNames
+    }
   }
 
   const ids = testNames
@@ -44,10 +54,10 @@ function findCasesInSpec(spec, readSpec = fs.readFileSync, tagged) {
   return uniqueSorted(ids)
 }
 
-function findCases(specs, readSpec = fs.readFileSync, tagged) {
+function findCases(specs, readSpec = fs.readFileSync, tagged, negativeTagged) {
   // find case Ids in each spec and flatten into a single array
   const allCaseIds = specs
-    .map((spec) => findCasesInSpec(spec, readSpec, tagged))
+    .map((spec) => findCasesInSpec(spec, readSpec, tagged, negativeTagged))
     .reduce((a, b) => a.concat(b), [])
     .filter((id) => !isNaN(id))
   const uniqueCaseIds = Array.from(new Set(allCaseIds)).sort()

@@ -1,8 +1,9 @@
+require('dotenv').config()
+
 // @ts-check
 const debug = require('debug')('cypress-testrail-simple')
 const fs = require('fs')
 const path = require('path')
-require('dotenv').config()
 
 function hasConfig(env = process.env) {
   return (
@@ -20,17 +21,18 @@ function safelyParseJson(str) {
     return {}
   }
 }
-
 function getTestRailConfig(
   env = process.env,
   configFile = process.env.configFile,
 ) {
   const debug = require('debug')('cypress-testrail-simple')
+
   if (configFile) {
     let configRawData = fs.readFileSync(
       `./config/${configFile}.config.json`,
       'utf-8',
     )
+
     let configData = JSON.parse(configRawData).reporterOptions
     env.TESTRAIL_HOST = configData.TESTRAIL_HOST
     env.TESTRAIL_USERNAME = configData.TESTRAIL_USERNAME

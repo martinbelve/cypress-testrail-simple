@@ -24,6 +24,7 @@ const args = arg(
     '--find-specs': Boolean,
     // filter all found specs by the given tag(s)
     '--tagged': String,
+    '--notTagged': String,
     // do not open the test run, just find everything
     '--dry': Boolean,
     // aliases
@@ -104,7 +105,7 @@ async function startRun({ testRailInfo, name, description, caseIds }) {
       (json) => {
         debug('response from the add_run')
         debug('%o', json)
-        console.log(json.id)
+        process.stdout.write(`${json.id}`)
       },
       (error) => {
         console.error('Could not create a new TestRail run')
@@ -124,6 +125,7 @@ if (args['--find-specs']) {
   debug(specs)
 
   let tagged
+  let negativeTagged = []
   if (args['--tagged']) {
     tagged = args['--tagged']
       .split(',')
@@ -131,7 +133,14 @@ if (args['--find-specs']) {
       .filter(Boolean)
     debug('tagged: %o', tagged)
   }
-  const caseIds = findCases(specs, fs.readFileSync, tagged)
+  if (args['--notTagged']) {
+    negativeTagged = args['--notTagged']
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    debug('notTagged: %o', negativeTagged)
+  }
+  const caseIds = findCases(specs, fs.readFileSync, tagged, negativeTagged)
   debug('found %d TestRail case ids: %o', caseIds.length, caseIds)
 
   if (args['--dry']) {

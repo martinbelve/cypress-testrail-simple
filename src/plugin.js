@@ -57,12 +57,7 @@ async function registerPlugin(on, config, skipPlugin = false) {
     return
   }
 
-  if (!hasConfig(process.env)) {
-    debug('cypress-testrail-simple env variables are not set')
-    return
-  }
-
-  const testRailInfo = getTestRailConfig()
+  const testRailInfo = getTestRailConfig(process.env, config.env.configFile)
   const runId = getTestRunId(config)
   if (!runId) {
     throw new Error('Missing test rail run ID')

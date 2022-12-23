@@ -11,6 +11,7 @@ const args = arg(
   {
     '--run': Number,
     '--force': Boolean,
+    '--configFile': String,
   },
   { permissive: true },
 )
@@ -39,7 +40,7 @@ if (!runId) {
 
 const force = process.argv[3] === '--force'
 
-const testRailInfo = getTestRailConfig()
+const testRailInfo = getTestRailConfig(process.env, args['--configFile'])
 debug('test rail info with the password masked')
 debug('%o', { ...testRailInfo, password: '<masked>' })
 
