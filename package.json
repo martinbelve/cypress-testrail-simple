@@ -1,6 +1,6 @@
 {
   "name": "cypress-testrail-simple",
-  "version": "0.0.0-development",
+  "version": "0.0.1-development",
   "description": "Simple upload of Cypress test results to TestRail",
   "main": "index.js",
   "files": [
@@ -46,7 +46,7 @@
     "debug": "^4.3.2",
     "dotenv": "^16.0.3",
     "find-cypress-specs": "^1.17.0",
-    "find-test-names-tags": "^1.0.1",
+    "find-test-names-tags": "^1.0.2",
     "globby": "^11",
     "got": "^11.8.2"
   },
