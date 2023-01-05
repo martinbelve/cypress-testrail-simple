@@ -21,10 +21,7 @@ function safelyParseJson(str) {
     return {}
   }
 }
-function getTestRailConfig(
-  env = process.env,
-  configFile = process.env.configFile,
-) {
+function getTestRailConfig(env = process.env, configFile) {
   const debug = require('debug')('cypress-testrail-simple')
 
   if (configFile) {

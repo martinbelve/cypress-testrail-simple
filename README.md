@@ -1,7 +1,5 @@
 # cypress-testrail-simple
 
-[![cypress-testrail-simple](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/41cgid/main&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/41cgid/runs) [![ci](https://github.com/bahmutov/cypress-testrail-simple/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bahmutov/cypress-testrail-simple/actions/workflows/ci.yml) [![CircleCI](https://circleci.com/gh/bahmutov/cypress-testrail-simple/tree/main.svg?style=svg)](https://circleci.com/gh/bahmutov/cypress-testrail-simple/tree/main) ![cypress version](https://img.shields.io/badge/cypress-9.7.0-brightgreen) [![renovate-app badge][renovate-badge]][renovate-app]
-
 > Simple upload of Cypress test results to TestRail
 
 Read the blog post [Cypress And TestRail](https://glebbahmutov.com/blog/cypress-and-testrail/). For testing, [this is a private TestRail project](https://bahmutov.testrail.io/index.php?/suites/view/1).
@@ -12,9 +10,9 @@ Add this plugin as a dev dependency
 
 ```
 # If using NPM
-$ npm i -D cypress-testrail-simple
+$ npm i -D cypress-testrail-simple-integrated-tags
 # If using Yarn
-$ yarn add -D cypress-testrail-simple
+$ yarn add -D cypress-testrail-simple-integrated-tags
 ```
 
 ### Cypress v10+
@@ -29,7 +27,7 @@ module.exports = defineConfig({
   e2e: {
     // other settings, like baseUrl
     async setupNodeEvents(on, config) {
-      await require('cypress-testrail-simple/src/plugin')(on, config)
+      await require('cypress-testrail-simple-integrated-tags/src/plugin')(on, config)
     },
   },
 })
@@ -43,7 +41,7 @@ Add the plugin to your Cypress plugin file
 // cypress/plugins/index.js
 module.exports = async (on, config) => {
   // https://github.com/bahmutov/cypress-testrail-simple
-  await require('cypress-testrail-simple/src/plugin')(on, config)
+  await require('cypress-testrail-simple-integrated-tags/src/plugin')(on, config)
 }
 ```
 
@@ -63,12 +61,15 @@ TESTRAIL_PROJECTID=
 TESTRAIL_SUITEID=...
 ```
 
+* It is also possible to declare them in reporter options
+* For this purpose, the file name or path from /config/ without including .json or config/
+
 If these variables are present, we assume the user wants to use the plugin. You can disable the plugin by passing an argument
 
 ```js
 module.exports = async (on, config) => {
   // skip loading the plugin
-  await require('cypress-testrail-simple/src/plugin')(on, config, true)
+  await require('cypress-testrail-simple-integrated-tags/src/plugin')(on, config, true)
 }
 ```
 
@@ -127,41 +128,33 @@ npx testrail-start-run \
   --find-specs
 ```
 
-#### --tagged
+#### --tagged and --notTagged
 
 Sometimes you want to pick the tests with a tag to create a new test run. You can use the combination of `--find-specs` and `--tagged tag` to pick only the test case IDs for tests with effective tag "tag"
 
 ```
 npx testrail-start-run \
-  --find-specs --tagged @user
+  --find-specs --tagged @user --notTagged @one
 ```
+
+* The above command will only run test 51
 
 You can list several tags, if a test has any one of them, it will be picked.
 
 ```js
 // example spec file
-describe('parent', { tags: '@user' }, () => {
-  describe('parent', { tags: '@auth' }, () => {
-    it('C50 works a', { tags: '@one' }, () => {})
+describe(['@user'], 'parent', () => {
+  describe(['@auth'], 'parent', () => {
+    it(['@one'], 'C50 works a', () => {})
     it('C51 works b', () => {})
   })
 })
-describe('outside', { tags: '@new' }, () => {
+describe(['@new'], 'outside', () => {
   it('C101 works c', () => {})
 })
 ```
 
 For example, `--find-specs --tagged @new` will only pick the test "works c" to run with its id `101`. If you want to run the authentication tests, you can call `--find-specs --tagged @auth` and it will pick the case IDs `50` and `51`.
-
-### testrail-run-results
-
-Shows the TestRail run results
-
-```
-npx testrail-run-results --run 60
-```
-
-Prints a table with test cases
 
 ### testrail-close-run
 
@@ -178,20 +171,6 @@ This script allows two explicit parameters:
 
 - `--run <run ID>` to pass the run ID to close
 - `--force` to skip checking if the test run has all the tests completed
-
-### testrail-check-case-ids
-
-Prints the list of case IDs for the given TestRail project and optionally verifies them against the IDs found in the Cypress spec files
-
-```text
-# just print the list of TestRail cases and titles
-$ npx testrail-check-case-ids
-# compare the case IDs in the Cypress specs
-# against the TestRail project
-$ npx testrail-check-case-ids --find-specs
-```
-
-When comparing the cases in the spec files against the TestRail project, if there are extra case IDs found in the spec files, the script exits with code 1.
 
 ## Testing locally
 
@@ -352,50 +331,15 @@ module.exports = async (on, config) => {
 }
 ```
 
-## Small print
+### MIT License
+Copyright (c) 2022 Manuel Buslon <manuelbuslon22@gmail.com>
 
-Author: Gleb Bahmutov &lt;gleb.bahmutov@gmail.com&gt; &copy; 2021
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-- [@bahmutov](https://twitter.com/bahmutov)
-- [glebbahmutov.com](https://glebbahmutov.com)
-- [blog](https://glebbahmutov.com/blog)
-- [videos](https://www.youtube.com/glebbahmutov)
-- [presentations](https://slides.com/bahmutov)
-- [cypress.tips](https://cypress.tips)
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-License: MIT - do anything with the code, but don't blame me if it does not work.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-Support: if you find any problems with this module, email / tweet /
-[open issue](https://github.com/bahmutov/cypress-testrail-simple/issues) on Github
+Acknowledgments
 
-## MIT License
-
-Copyright (c) 2021 Gleb Bahmutov &lt;gleb.bahmutov@gmail.com&gt;
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
-[renovate-badge]: https://img.shields.io/badge/renovate-app-blue.svg
-[renovate-app]: https://renovateapp.com/
-
-```
-
-```
+Gleb Bahmutov, owner of the cypress-testrail-reporter repository that was forked.

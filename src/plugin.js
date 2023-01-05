@@ -52,7 +52,7 @@ async function sendTestResults(testRailInfo, runId, testResults) {
  * @param {Boolean} skipPlugin If true, skips loading the plugin. Defaults to false
  */
 async function registerPlugin(on, config, skipPlugin = false) {
-  if (skipPlugin === true) {
+  if (skipPlugin === true || !config['isTextTerminal']) {
     debug('the user explicitly disabled the plugin')
     return
   }

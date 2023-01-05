@@ -119,27 +119,28 @@ async function startRun({ testRailInfo, name, description, caseIds }) {
     )
 }
 
+let tagged = []
+let negativeTagged = []
+if (args['--tagged']) {
+  tagged = args['--tagged']
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  debug('tagged: %o', tagged)
+}
+if (args['--notTagged']) {
+  negativeTagged = args['--notTagged']
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  debug('notTagged: %o', negativeTagged)
+}
+
 if (args['--find-specs']) {
   const specs = findCypressSpecs.getSpecs()
   debug('found %d Cypress specs', specs.length)
   debug(specs)
 
-  let tagged
-  let negativeTagged = []
-  if (args['--tagged']) {
-    tagged = args['--tagged']
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-    debug('tagged: %o', tagged)
-  }
-  if (args['--notTagged']) {
-    negativeTagged = args['--notTagged']
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-    debug('notTagged: %o', negativeTagged)
-  }
   const caseIds = findCases(specs, fs.readFileSync, tagged, negativeTagged)
   debug('found %d TestRail case ids: %o', caseIds.length, caseIds)
 
@@ -153,7 +154,7 @@ if (args['--find-specs']) {
   findSpecs(args['--spec']).then((specs) => {
     debug('using pattern "%s" found specs', args['--spec'])
     debug(specs)
-    const caseIds = findCases(specs)
+    const caseIds = findCases(specs, fs.readFileSync, tagged, negativeTagged)
     debug('found %d TestRail case ids: %o', caseIds.length, caseIds)
 
     const testRailInfo = getTestRailConfig(process.env, args['--configFile'])
